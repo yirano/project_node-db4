@@ -1,29 +1,39 @@
 const router = require('express').Router()
 const { raw } = require('objection')
-const db = require('../data/config')
+const Recipes = require('../models/recipes_model')
 
 router.get('/', async (req, res, next) => {
   try {
-    const recipes = await db('recipes')
+    const recipes = await Recipes.find()
     res.json(recipes)
   } catch (error) {
     next(error)
   }
 })
 
-router.get('/:id/steps', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    // const step = await db('recipes')
-    //   .where('recipes.id', req.params.id)
-    //   .join('steps', 'steps.recipes_id', 'recipes.id')
-    //   .select('steps.description as step')
+    const recipe = await Recipes.findById(req.params.id)
+    res.json(recipe)
+  } catch (error) {
+    next(error)
+  }
+})
 
-    const step = await db('recipes')
-      .where('recipes.id', req.params.id)
-      .join('steps', 'steps.recipes_id', 'recipes.id')
-      .pluck('steps.description')
+router.get('/:id/instructions', async (req, res, next) => {
+  try {
+    const steps = await Recipes.findInstructions(req.params.id)
+    res.json(steps)
+  } catch (error) {
+    console.dir(error)
+    next(error)
+  }
+})
 
-    res.json(step)
+router.get('/:id/shoppingList', async (req, res, next) => {
+  try {
+    const ingreds = await Recipes.findIngredients(req.params.id)
+    res.json(ingreds)
   } catch (error) {
     next(error)
   }
